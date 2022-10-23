@@ -7,14 +7,18 @@ async function init() {
     const modelURL = URL + "model.json";
     const metadataURL = URL + "metadata.json";
 
-        // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // or files from your local hard drive
-        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+    // load the model and metadata
+    // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+    // or files from your local hard drive
+    // Note: the pose library adds "tmImage" object to your window (window.tmImage)
     model = await tmImage.load(modelURL, metadataURL);
     maxPredictions = model.getTotalClasses();
+    
+    if (document.getElementById("webcam-container").hasChildNodes()) {
+        document.getElementById("webcam-container").removeChild(webcam.canvas);
+    }
 
-        // Convenience function to setup a webcam
+    // Convenience function to setup a webcam
     const flip = true; // whether to flip the webcam
     webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
     await webcam.setup(); // request access to the webcam
@@ -27,21 +31,48 @@ async function init() {
     for (let i = 0; i < maxPredictions; i++) { // and class labels
         labelContainer.appendChild(document.createElement("div"));
     }
+
+    var instructionTextElement = document.createElement("p");
+    var instructionTextText = document.createTextNode("Show the object to the webcam. Click the stop button to identify the object.");
+    instructionTextElement.appendChild(instructionTextText);
+
+    document.getElementById("stopCamButton").hidden = false;
+    document.getElementById("instructions").appendChild(instructionTextElement);
+    document.getElementById("startCamButton").hidden = true;
+
 }
 
 async function loop() {
     webcam.update(); // update the webcam frame
-    await predict();
+    
     window.requestAnimationFrame(loop);
 }
 
-    // run the webcam image through the image model
-async function predict() {
-        // predict can take in an image, video or canvas html element
+async function stopCam() {
+    webcam.stop();
+
+    document.getElementById("stopCamButton").hidden = true;
+    document.getElementById("startCamButton").hidden = false;
+    document.getElementById("instructions").hidden = true;
+
+    await predictLiveCam();
+
+}
+
+// run the webcam image through the image model
+async function predictLiveCam() {
+    // predict can take in an image, video or canvas html element
     const prediction = await model.predict(webcam.canvas);
     for (let i = 0; i < maxPredictions; i++) {
-        const classPrediction =
-            prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+        if (prediction[i].probability.toFixed(2) > 0.5) {
+            var classPrediction = prediction[i].className + " (" + (prediction[i].probability.toFixed(2)) * 100 + "% confidence)";
+        }
+
+        else if (prediction[i].probability.toFixed(2) < 0.5) {
+            var classPrediction = "";
+        }
+
         labelContainer.childNodes[i].innerHTML = classPrediction;
+        
     }
 }
