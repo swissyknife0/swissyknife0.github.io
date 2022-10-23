@@ -6,23 +6,21 @@
         <link rel="stylesheet" href="styles.css">
 
     </head>
-
+    
     <body>
 
-        <div id="rewindBanner" class="whiteText">
-            <h1 id="rewindBannerTitle">Rewind</h1>
-            <h2 id="rewindBannerSubtitle">A place to share shorts</h2>
+        <div>
+            <button type="button" id="startCamButton" class="startCamButtonStyle" onclick="init()">Start</button>
+            <div id="webcam-container"></div>
+            <div id="label-container"></div>
+            <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+            <script src="mlcode.js"></script>
+            <div id="instructions"></div>
+        
+            <button hidden type="button" id="stopCamButton" onclick="stopCam()">Stop the camera</button>
         </div>
-
-        <div>Teachable Machine Image Model</div>
-        <button type="button" onclick="init()">Start</button>
-        <div id="webcam-container"></div>
-        <div id="label-container"></div>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
-        <script src="mlcode.js"></script>
-
-
+        
     </body>
     
 </html>
